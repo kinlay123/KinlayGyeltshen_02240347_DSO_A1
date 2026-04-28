@@ -1,38 +1,221 @@
-.App {
+body, html {
+  background: #f6f8fb;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+.main-bg {
+  min-height: 100vh;
+  background: #f6f8fb;
+}
+
+.navbar {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 16px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.navbar-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #22223b;
+}
+
+.container {
+  max-width: 480px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.header h1 {
+  margin: 0 0 8px 0;
+  font-size: 2.2rem;
+  color: #22223b;
+}
+.header p {
+  color: #6c757d;
+  margin: 0;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 12px 20px;
   text-align: center;
 }
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #22223b;
+}
+.stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+.stat-card.done .stat-number {
+  color: #1abc9c;
+}
+.stat-card.pending .stat-number {
+  color: #6c63ff;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 28px 24px 24px 24px;
+  margin-bottom: 28px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.add-task-card h2 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  color: #22223b;
+  margin-bottom: 18px;
+}
+.add-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.add-task-form label {
+  font-size: 1rem;
+  color: #22223b;
+  margin-bottom: 2px;
+}
+.add-task-form .required {
+  color: #e74c3c;
+  font-size: 1rem;
+}
+.add-task-form .optional {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+.add-task-form input,
+.add-task-form textarea {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  outline: none;
+  resize: none;
+  background: #f8f9fa;
+  transition: border 0.2s;
+}
+.add-task-form input:focus,
+.add-task-form textarea:focus {
+  border: 1.5px solid #6c63ff;
+}
+.add-btn {
+  background: #6c63ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s;
+}
+.add-btn:hover {
+  background: #5548c8;
+}
+
+.tasks-list-card {
+  min-height: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+}
+.tasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.task:last-child {
+  border-bottom: none;
+}
+.task-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.task-title {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #22223b;
+}
+.task-desc {
+  font-size: 0.95rem;
+  color: #6c757d;
+  margin-top: 2px;
+}
+.task.done .task-title {
+  text-decoration: line-through;
+  color: #aaa;
+}
+.delete-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.delete-btn:hover {
+  background: #c0392b;
 }
 
-.App-link {
-  color: #61dafb;
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #6c757d;
+  margin: 32px 0 16px 0;
+}
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 600px) {
+  .container {
+    max-width: 100%;
+    padding: 0 4px;
   }
-  to {
-    transform: rotate(360deg);
+  .card {
+    padding: 18px 6px 16px 6px;
+  }
+  .stats {
+    gap: 8px;
   }
 }
+
