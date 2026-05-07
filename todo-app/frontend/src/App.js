@@ -4,7 +4,6 @@ import './App.css';
 function App() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const API = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const fetchTasks = async () => {
@@ -23,10 +22,9 @@ function App() {
     await fetch(`${API}/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description })
+      body: JSON.stringify({ title })
     });
     setTitle("");
-    setDescription("");
     fetchTasks();
   };
 
@@ -35,9 +33,30 @@ function App() {
     fetchTasks();
   };
 
+  const toggleTask = async (task) => {
+    await fetch(`${API}/tasks/${task.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: !task.completed })
+    });
+    fetchTasks();
+  };
+
+  const editTask = async (task) => {
+    const newTitle = window.prompt("Edit task title", task.title);
+    if (!newTitle || !newTitle.trim() || newTitle.trim() === task.title) return;
+
+    await fetch(`${API}/tasks/${task.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: newTitle.trim() })
+    });
+    fetchTasks();
+  };
+
   useEffect(() => { fetchTasks(); }, []);
 
-  const doneCount = tasks.filter(t => t.done).length;
+  const doneCount = tasks.filter(t => t.completed).length;
   const pendingCount = tasks.length - doneCount;
 
   return (
@@ -75,12 +94,6 @@ function App() {
               placeholder="What needs to be done?"
               required
             />
-            <label>Description <span className="optional">(optional)</span></label>
-            <textarea
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Add more details..."
-            />
             <button type="submit" className="add-btn">+ Add Task</button>
           </form>
         </div>
@@ -93,12 +106,17 @@ function App() {
           ) : (
             <ul className="tasks-list">
               {tasks.map(t => (
-                <li key={t.id} className={t.done ? "task done" : "task"}>
+                <li key={t.id} className={t.completed ? "task done" : "task"}>
                   <div className="task-main">
                     <div className="task-title">{t.title}</div>
-                    {t.description && <div className="task-desc">{t.description}</div>}
                   </div>
-                  <button className="delete-btn" onClick={() => deleteTask(t.id)}>Delete</button>
+                  <div className="task-actions">
+                    <button className="delete-btn" onClick={() => toggleTask(t)}>
+                      {t.completed ? "Mark Pending" : "Mark Done"}
+                    </button>
+                    <button className="delete-btn" onClick={() => editTask(t)}>Edit</button>
+                    <button className="delete-btn" onClick={() => deleteTask(t.id)}>Delete</button>
+                  </div>
                 </li>
               ))}
             </ul>

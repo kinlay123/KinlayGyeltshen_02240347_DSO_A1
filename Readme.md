@@ -1,1 +1,0 @@
-# KinlayGyeltshen_02240347_DSO_A1
