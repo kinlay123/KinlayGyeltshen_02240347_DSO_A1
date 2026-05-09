@@ -1,50 +1,59 @@
-require("dotenv").config();
+require("dotenv").config({ path: ".env.production" });
 const express = require("express");
 const cors = require("cors");
-const { PrismaClient } = require("./generated/prisma/index.js");
-const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3");
-const Database = require("better-sqlite3");
+const { PrismaClient } = require("@prisma/client");
+const { PrismaPg } = require("@prisma/adapter-pg");
 
 const app = express();
-app.use(cors());
+
+app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000" }));
 app.use(express.json());
 
-const db = new Database("dev.db");
-const adapter = new PrismaBetterSqlite3({ url: "file:./dev.db" });
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 app.get("/tasks", async (req, res) => {
-  const tasks = await prisma.task.findMany();
-  res.json(tasks);
+  try {
+    const tasks = await prisma.task.findMany();
+    res.json(tasks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch tasks" });
+  }
 });
 
 app.post("/tasks", async (req, res) => {
-  const { title } = req.body;
-  if (!title || !title.trim()) {
-    return res.status(400).json({ error: "Title is required" });
+  try {
+    const { title } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+    const task = await prisma.task.create({
+      data: { title: title.trim() }
+    });
+    res.json(task);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to create task" });
   }
-  const task = await prisma.task.create({
-    data: { title: title.trim() }
-  });
-  res.json(task);
 });
 
 app.put("/tasks/:id", async (req, res) => {
-  const { id } = req.params;
-  const { title, completed } = req.body;
-
-  const data = {};
-  if (typeof title === "string" && title.trim()) {
-    data.title = title.trim();
-  }
-  if (typeof completed === "boolean") {
-    data.completed = completed;
-  }
-  if (Object.keys(data).length === 0) {
-    return res.status(400).json({ error: "No valid fields to update" });
-  }
-
   try {
+    const { id } = req.params;
+    const { title, completed } = req.body;
+
+    const data = {};
+    if (typeof title === "string" && title.trim()) {
+      data.title = title.trim();
+    }
+    if (typeof completed === "boolean") {
+      data.completed = completed;
+    }
+    if (Object.keys(data).length === 0) {
+      return res.status(400).json({ error: "No valid fields to update" });
+    }
+
     const updatedTask = await prisma.task.update({
       where: { id: parseInt(id, 10) },
       data
@@ -56,12 +65,19 @@ app.put("/tasks/:id", async (req, res) => {
 });
 
 app.delete("/tasks/:id", async (req, res) => {
-  const { id } = req.params;
-  await prisma.task.delete({
-    where: { id: parseInt(id) }
-  });
-  res.send("Deleted");
+  try {
+    const { id } = req.params;
+    await prisma.task.delete({
+      where: { id: parseInt(id, 10) }
+    });
+    res.json({ message: "Deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ error: "Task not found" });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
