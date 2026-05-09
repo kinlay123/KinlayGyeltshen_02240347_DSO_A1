@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    tools {
+        nodejs 'NodeJS'   // must match the name in Jenkins Tools
+    }
+
+    stages {
+
+        // Stage 1: Pull latest code from GitHub
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/yourusername/assignment1-node-app.git',
+                    credentialsId: 'github-credentials'
+            }
+        }
+
+        // Stage 2: Install npm packages
+        stage('Install') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        // Stage 3: Compile/build the app
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        // Stage 4: Run Jest tests and publish results
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+            post {
+                always {
+                    junit 'junit.xml'   // publish test report to Jenkins UI
+                }
+            }
+        }
+
+        // Stage 5: Build Docker image and push to Docker Hub
+        stage('Deploy') {
+            steps {
+                script {
+                    docker.build('yourdockerhubusername/node-app:latest')
+                    docker.withRegistry(
+                        'https://registry.hub.docker.com',
+                        'docker-hub-creds'
+                    ) {
+                        docker.image('yourdockerhubusername/node-app:latest').push()
+                    }
+                }
+            }
+        }
+    }
+}
